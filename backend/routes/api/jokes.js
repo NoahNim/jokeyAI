@@ -1,7 +1,7 @@
 const { OpenAI } = require("openai");
 const express = require("express");
 const asyncHandler = require("express-async-handler");
-// const { BadIdea } = require("../../db/models");
+const { Joke } = require("../../db/models");
 const router = express.Router();
 const { requireAuth } = require("../../utils/auth");
 
@@ -10,40 +10,40 @@ const openai = new OpenAI({
 });
 
 router.post('/chatgpt', asyncHandler(async (req, res) => {
-    const badidea = await openai.chat.completions.create({
+    const joke = await openai.chat.completions.create({
         messages: [{
             role: "user",
             content: "Tell me a joke."
         }],
         model: "gpt-4o",
     })
-    return res.json(badidea?.choices[0]?.message?.content);
+    return res.json(joke?.choices[0]?.message?.content);
 }))
 
-// router.post('/stored-ideas', asyncHandler(async (req, res) => {
-//     const idea = req.body.idea.data;
-//     const userId = req.body.userId
+router.post('/stored-jokes', asyncHandler(async (req, res) => {
+    const joke = req.body.joke.data;
+    const userId = req.body.userId
 
-//     const newIdea = await BadIdea.build({
-//         userId,
-//         idea
-//     })
+    const newJoke = await Joke.build({
+        userId,
+        joke
+    })
 
-//     await newIdea.save();
+    await newJoke.save();
 
-//     return res.json(newIdea)
-// }))
+    return res.json(newJoke)
+}))
 
-// router.get('/stored-ideas', requireAuth, asyncHandler(async (req, res) => {
-//     console.log(req.body)
+router.get('/stored-jokes', requireAuth, asyncHandler(async (req, res) => {
+    console.log(req.body)
 
-//     const badideas = await BadIdea.findAll({
-//         where: {
-//             userId: req.user.id
-//         }
-//     });
+    const jokes = await Joke.findAll({
+        where: {
+            userId: req.user.id
+        }
+    });
 
-//     return res.json(badideas)
-// }))
+    return res.json(jokes)
+}))
 
 module.exports = router;
